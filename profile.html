@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOC Books - El Meu Perfil</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">LOGO</div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Buscar llibres...">
+            <button class="search-btn">🔍</button>
+        </div>
+        <div class="user-actions">
+            <button class="btn" onclick="window.location.href='index.html'">Inici</button>
+            <button class="btn" onclick="logout()">Tancar sessió</button>
+        </div>
+    </header>
+
+    <main class="profile-container">
+        <!-- User Info Section -->
+        <section class="profile-header">
+            <div class="profile-avatar">U</div>
+            <div class="profile-info">
+                <h1 id="userName">Usuari</h1>
+                <p id="userEmail">mail@exemple.com</p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-number" id="booksRead">0</span>
+                        <span class="stat-label">Llegits</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="booksReading">0</span>
+                        <span class="stat-label">Llegint</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="booksToRead">0</span>
+                        <span class="stat-label">Per llegir</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" id="totalCollections">0</span>
+                        <span class="stat-label">Col·leccions</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('bookshelves')">Prestatgeries</button>
+            <button class="tab" onclick="showTab('collections')">Col·leccions</button>
+            <button class="tab" onclick="showTab('tags')">Etiquetes</button>
+            <button class="tab" onclick="showTab('activity')">Activitat</button>
+        </div>
+
+        <div id="bookshelvesTab" class="tab-content active">
+            <h2>Les Meves Prestatgeries</h2>
+
+            <div class="shelf-section">
+                <div class="shelf-header">
+                    <h3>Llegint ara</h3>
+                    <span class="shelf-count" id="readingCount">0 llibres</span>
+                </div>
+                <div class="books-grid" id="readingShelf"></div>
+            </div>
+
+            <div class="shelf-section">
+                <div class="shelf-header">
+                    <h3>Vull llegir</h3>
+                    <span class="shelf-count" id="wantToReadCount">0 llibres</span>
+                </div>
+                <div class="books-grid" id="wantToReadShelf"></div>
+            </div>
+
+            <div class="shelf-section">
+                <div class="shelf-header">
+                    <h3>Completats</h3>
+                    <span class="shelf-count" id="completedCount">0 llibres</span>
+                </div>
+                <div class="books-grid" id="completedShelf"></div>
+            </div>
+
+            <div class="shelf-section">
+                <div class="shelf-header">
+                    <h3>Pausats</h3>
+                    <span class="shelf-count" id="pausedCount">0 llibres</span>
+                </div>
+                <div class="books-grid" id="pausedShelf"></div>
+            </div>
+        </div>
+
+        <div id="collectionsTab" class="tab-content">
+            <div class="collections-header">
+                <h2>Les Meves Col·leccions</h2>
+                <button class="btn btn-primary" onclick="showCreateCollectionModal()">+ Nova Col·lecció</button>
+            </div>
+            <div id="collectionsList" class="collections-grid"></div>
+        </div>
+
+        <div id="tagsTab" class="tab-content">
+            <div class="tags-header">
+                <h2>Les Meves Etiquetes</h2>
+                <button class="btn btn-primary" onclick="showCreateTagModal()">+ Nova Etiqueta</button>
+            </div>
+            <div id="tagsList" class="tags-container"></div>
+        </div>
+
+        <div id="activityTab" class="tab-content">
+            <h2>Activitat de Lectura</h2>
+            <div class="activity-stats">
+                <div class="activity-card">
+                    <h3>Progrés aquest mes</h3>
+                    <div class="progress-info">
+                        <p><strong id="pagesThisMonth">0</strong> pàgines llegides</p>
+                        <p><strong id="hoursThisMonth">0</strong> hores de lectura</p>
+                        <p><strong id="booksFinishedMonth">0</strong> llibres completats</p>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <h3>Llibres per ritme de lectura</h3>
+                    <div id="booksByProgress"></div>
+                </div>
+                <div class="activity-card">
+                    <h3>Últimes lectures</h3>
+                    <div id="recentBooks"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal" id="createCollectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Col·lecció</h2>
+                <button class="close-modal" onclick="closeCreateCollectionModal()">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nom de la col·lecció</label>
+                    <input type="text" id="collectionName" placeholder="Ex: Els meus favorits de 2026">
+                </div>
+                <div class="form-group">
+                    <label>Descripció (opcional)</label>
+                    <textarea id="collectionDescription" rows="3"
+                        placeholder="Descriu aquesta col·lecció..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeCreateCollectionModal()">Cancel·lar</button>
+                <button class="btn btn-primary" onclick="createCollection()">Crear Col·lecció</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="createTagModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Etiqueta</h2>
+                <button class="close-modal" onclick="closeCreateTagModal()">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nom de l'etiqueta</label>
+                    <input type="text" id="tagName" placeholder="Ex: filosofia, favorits, lectures lentes">
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <select id="tagColor">
+                        <option value="#3498db">Blau</option>
+                        <option value="#2ecc71">Verd</option>
+                        <option value="#f39c12">Taronja</option>
+                        <option value="#e74c3c">Vermell</option>
+                        <option value="#9b59b6">Porpra</option>
+                        <option value="#1abc9c">Turquesa</option>
+                        <option value="#34495e">Gris</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeCreateTagModal()">Cancel·lar</button>
+                <button class="btn btn-primary" onclick="createTag()">Crear Etiqueta</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="manageBookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Organitza el llibre</h2>
+                <button class="close-modal" onclick="closeManageBookModal()">X</button>
+            </div>
+            <div class="modal-body">
+                <h3 id="manageBookTitle"></h3>
+
+                <div class="form-group">
+                    <label>Estat de lectura</label>
+                    <select id="bookStatus">
+                        <option value="reading">Llegint ara</option>
+                        <option value="want-to-read">Vull llegir</option>
+                        <option value="completed">Completat</option>
+                        <option value="paused">Pausat</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Col·leccions</label>
+                    <div id="bookCollections" class="checkbox-list"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Etiquetes</label>
+                    <div id="bookTags" class="checkbox-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeManageBookModal()">Cancel·lar</button>
+                <button class="btn btn-primary" onclick="saveBookOrganization()">Desar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="profile.js"></script>
+</body>
+
+</html>

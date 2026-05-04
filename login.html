@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOC Books - Inicia sessió</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="logo" style="text-align: center; margin-bottom: 30px;">LOGO</div>
+
+            <div id="loginForm">
+                <h1>Inicia sessió</h1>
+                <form onsubmit="return handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Correu electrònic</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Contrasenya</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Inicia sessió</button>
+                    <button type="button" class="btn-auto" onclick="autoLogin()">🚀 Auto registre</button>
+                </form>
+                <div class="auth-toggle">
+                    <p>No tens compte? <a href="#" onclick="showRegister(); return false;">Registra't</a></p>
+                </div>
+            </div>
+
+            <div id="registerForm" style="display: none;">
+                <h1>Registra't</h1>
+                <form onsubmit="return handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerName">Nom complet</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Correu electrònic</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Contrasenya</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Confirma la contrasenya</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Registra't</button>
+                    <button type="button" class="btn-auto" onclick="autoRegister()">🚀 Auto registre</button>
+                </form>
+                <div class="auth-toggle">
+                    <p>Ja tens compte? <a href="#" onclick="showLogin(); return false;">Inicia sessió</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Simulate login
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'index.html';
+            } else {
+                alert('Correu electrònic o contrasenya incorrectes');
+            }
+            return false;
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                alert('Les contrasenyes no coincideixen');
+                return false;
+            }
+
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (users.find(u => u.email === email)) {
+                alert('Aquest correu electrònic ja està registrat');
+                return false;
+            }
+
+            // Create new user
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+
+            alert('Registre completat amb èxit!');
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        function autoLogin() {
+            const testUser = {
+                id: Date.now(),
+                name: 'Usuari de prova',
+                email: 'prova@uoc.edu',
+                password: 'test123',
+                createdAt: new Date().toISOString()
+            };
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            // Check if test user already exists
+            let existingUser = users.find(u => u.email === testUser.email);
+
+            if (!existingUser) {
+                users.push(testUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                existingUser = testUser;
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(existingUser));
+            window.location.href = 'index.html';
+        }
+
+        function autoRegister() {
+            autoLogin(); // same functionality for simplicity
+        }
+
+        window.addEventListener('load', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                // user is already logged in, redirect to home
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

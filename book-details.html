@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOC Books - Detalls del Llibre</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">LOGO</div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Buscar per títol">
+            <button class="search-btn">🔍</button>
+        </div>
+        <div class="user-actions">
+            <button class="btn">Registra't</button>
+            <button class="btn" onclick="logout()">Inicia sessió</button>
+        </div>
+    </header>
+
+    <div class="details-container">
+        <button class="back-btn" onclick="window.history.back()">Anar a la pàgina d'inici</button>
+
+        <div class="book-details">
+            <div>
+                <div class="book-cover-large" id="bookCover"></div>
+                <div class="action-buttons" style="margin-top: 20px;">
+                    <button class="btn-read" onclick="startReading()">LLEGIR</button>
+                    <button class="btn-library" onclick="addToLibrary()">Afegir a la llibreria</button>
+                </div>
+            </div>
+
+            <div class="book-info">
+                <h1 id="bookTitle">Títol del Llibre</h1>
+                <p class="author" id="bookAuthor">Autor</p>
+
+                <div class="book-rating-large" id="bookRating">
+                    <div class="stars">★★★★★</div>
+                    <span class="rating-value">4.2/5⭐</span>
+                </div>
+
+                <div class="book-meta">
+                    <p><strong>Pàgines:</strong> <span id="bookPages">100</span></p>
+                    <p><strong>Gèneres:</strong> <span id="bookGenres">Autobiografia</span></p>
+                    <p><strong>Edició:</strong> <span id="bookEdition">3a</span></p>
+                    <p><strong>Idioma:</strong> <span id="bookLanguage">Esperanto</span></p>
+                    <p><strong>Any de publicació:</strong> <span id="bookYear">2020</span></p>
+                    <p><strong>Temps de lectura:</strong> <span id="bookReadTime">~5 hores</span></p>
+                    <p><strong>Format:</strong> <span id="bookFormat">Llibre</span></p>
+                </div>
+
+                <div class="book-description">
+                    <h2>Mostrar tot</h2>
+                    <p id="bookDescription">
+                        Lorem Ipsum és un text de farciment usar per la indústria de la tipografia i la impremta.
+                        Lorem Ipsum ha estat el text estàndard de la indústria des de l'any 1500...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <h2>Deixa una ressenya</h2>
+
+            <div class="review-form">
+                <h3>Valora aquest llibre</h3>
+                <div class="rating-input" id="ratingInput">
+                    <span class="star" data-rating="1" onclick="setRating(1)">★</span>
+                    <span class="star" data-rating="2" onclick="setRating(2)">★</span>
+                    <span class="star" data-rating="3" onclick="setRating(3)">★</span>
+                    <span class="star" data-rating="4" onclick="setRating(4)">★</span>
+                    <span class="star" data-rating="5" onclick="setRating(5)">★</span>
+                </div>
+                <textarea class="review-textarea" id="reviewText" placeholder="Escriu la teva opinió..."></textarea>
+                <button class="btn-primary" onclick="submitReview()">Publicar ressenya</button>
+            </div>
+
+            <div id="reviewsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentBook = null;
+        let userRating = 0;
+
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('id');
+
+            // Update user actions
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.id) {
+                const userActions = document.querySelector('.user-actions');
+                userActions.innerHTML = `
+                    <span style="margin-right: 15px; color: var(--primary-blue);">Hola, ${currentUser.name}</span>
+                    <button class="btn" onclick="window.location.href='profile.html'">El Meu Perfil</button>
+                    <button class="btn" onclick="logout()">Tancar sessió</button>
+                `;
+            }
+
+            if (bookId) {
+                const books = JSON.parse(localStorage.getItem('books') || '[]');
+                currentBook = books.find(b => b.id == bookId);
+
+                if (currentBook) {
+                    displayBookDetails(currentBook);
+                    loadReviews();
+                }
+            }
+        });
+
+        function displayBookDetails(book) {
+            document.getElementById('bookTitle').textContent = book.title;
+            document.getElementById('bookAuthor').textContent = book.author;
+            document.getElementById('bookPages').textContent = book.pages;
+            document.getElementById('bookGenres').textContent = book.genre;
+            document.getElementById('bookEdition').textContent = book.edition || '1a';
+            document.getElementById('bookLanguage').textContent = book.language;
+            document.getElementById('bookYear').textContent = book.year;
+            document.getElementById('bookReadTime').textContent = book.readTime;
+            document.getElementById('bookFormat').textContent = book.format;
+            document.getElementById('bookDescription').textContent = book.description;
+
+            const stars = '★'.repeat(Math.floor(book.rating)) + '☆'.repeat(5 - Math.floor(book.rating));
+            document.getElementById('bookRating').innerHTML = `
+                <div class="stars">${stars}</div>
+                <span class="rating-value">${book.rating}/5⭐</span>
+            `;
+        }
+
+        function setRating(rating) {
+            userRating = rating;
+            const stars = document.querySelectorAll('#ratingInput .star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function submitReview() {
+            if (userRating === 0) {
+                alert('Si us plau, selecciona una valoració');
+                return;
+            }
+
+            const reviewText = document.getElementById('reviewText').value.trim();
+            if (!reviewText) {
+                alert('Si us plau, escriu una ressenya');
+                return;
+            }
+
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser.id) {
+                alert('Has d\'iniciar sessió per deixar una ressenya');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Guardar ressenya
+            const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
+            const newReview = {
+                id: Date.now(),
+                bookId: currentBook.id,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                rating: userRating,
+                text: reviewText,
+                date: new Date().toISOString()
+            };
+
+            reviews.push(newReview);
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+
+            // Actualitzar valoració mitjana del llibre
+            const bookReviews = reviews.filter(r => r.bookId === currentBook.id);
+            const avgRating = bookReviews.reduce((sum, r) => sum + r.rating, 0) / bookReviews.length;
+
+            const books = JSON.parse(localStorage.getItem('books') || '[]');
+            const bookIndex = books.findIndex(b => b.id === currentBook.id);
+            if (bookIndex !== -1) {
+                books[bookIndex].rating = Math.round(avgRating * 10) / 10;
+                localStorage.setItem('books', JSON.stringify(books));
+                currentBook.rating = books[bookIndex].rating;
+                displayBookDetails(currentBook);
+            }
+
+            document.getElementById('reviewText').value = '';
+            setRating(0);
+
+            alert('Ressenya publicada amb èxit!');
+            loadReviews();
+        }
+
+        function loadReviews() {
+            const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
+            const bookReviews = reviews.filter(r => r.bookId === currentBook.id);
+
+            const reviewsList = document.getElementById('reviewsList');
+            if (bookReviews.length === 0) {
+                reviewsList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Encara no hi ha ressenyes per aquest llibre.</p>';
+                return;
+            }
+
+            reviewsList.innerHTML = bookReviews.map(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                const date = new Date(review.date).toLocaleDateString('ca-ES');
+                return `
+                    <div style="background-color: var(--light-gray); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong style="color: var(--primary-blue);">${review.userName}</strong>
+                            <span style="font-size: 12px; color: #666;">${date}</span>
+                        </div>
+                        <div style="color: #FFA500; margin-bottom: 10px;">${stars}</div>
+                        <p style="font-size: 14px; line-height: 1.6;">${review.text}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function startReading() {
+            if (currentBook) {
+                window.location.href = `reading.html?id=${currentBook.id}`;
+            }
+        }
+
+        function addToLibrary() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser.id) {
+                alert('Has d\'iniciar sessió per afegir llibres a la llibreria');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const library = JSON.parse(localStorage.getItem(`library_${currentUser.id}`) || '[]');
+            if (!library.includes(currentBook.id)) {
+                library.push(currentBook.id);
+                localStorage.setItem(`library_${currentUser.id}`, JSON.stringify(library));
+
+                // Also add to "want-to-read" shelf by default
+                const bookStatuses = JSON.parse(localStorage.getItem(`bookStatuses_${currentUser.id}`) || '{}');
+                if (!bookStatuses[currentBook.id]) {
+                    bookStatuses[currentBook.id] = 'want-to-read';
+                    localStorage.setItem(`bookStatuses_${currentUser.id}`, JSON.stringify(bookStatuses));
+                }
+
+                alert('Llibre afegit a la llibreria i a "Vull llegir"!');
+            } else {
+                alert('Aquest llibre ja està a la teva llibreria');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

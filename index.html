@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOC Books - Catàleg</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">LOGO</div>
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar per títol">
+            <button class="search-btn" onclick="searchBooks()">🔍</button>
+            <button class="toggle-filters-btn" onclick="toggleFiltersSection()">Mostrar/Ocultar Filtres</button>
+        </div>
+        <div class="user-actions">
+            <button class="btn" onclick="window.location.href='login.html'">Registra't</button>
+            <button class="btn" onclick="logout()">Inicia sessió</button>
+        </div>
+    </header>
+
+    <!-- Seccio de filtres -->
+    <section class="filters-section">
+        <div class="filters-title">Filtres</div>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label>Nom o descripció</label>
+                <input type="text" id="filterName" placeholder="Títol o descripció">
+            </div>
+            <div class="filter-group">
+                <label>Idioma</label>
+                <select id="filterLanguage">
+                    <option value="">Tots</option>
+                    <option value="Català">Català</option>
+                    <option value="Castellà">Castellà</option>
+                    <option value="Anglès">Anglès</option>
+                    <option value="Francès">Francès</option>
+                    <option value="Alemany">Alemany</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Gènere</label>
+                <select id="filterGenre">
+                    <option value="">Tots</option>
+                    <option value="Ficció">Ficció</option>
+                    <option value="No-ficció">No-ficció</option>
+                    <option value="Ciència-ficció">Ciència-ficció</option>
+                    <option value="Fantasia">Fantasia</option>
+                    <option value="Misteri">Misteri</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Romàntic">Romàntic</option>
+                    <option value="Històric">Històric</option>
+                    <option value="Biografies">Biografies</option>
+                    <option value="Assaig">Assaig</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Any de publicació</label>
+                <div style="display: flex; gap: 5px;">
+                    <select id="filterYearFrom">
+                        <option value="">Des de</option>
+                    </select>
+                    <select id="filterYearTo">
+                        <option value="">Fins</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>Temps aproximat de lectura</label>
+                <select id="filterReadTime">
+                    <option value="">Tot</option>
+                    <option value="0-3">0-3 hores</option>
+                    <option value="3-6">3-6 hores</option>
+                    <option value="6-12">6-12 hores</option>
+                    <option value="12-24">12-24 hores</option>
+                    <option value="24+">Més de 24 hores</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Autor</label>
+                <input type="text" id="filterAuthor" placeholder="Nom de l'autor">
+            </div>
+            <div class="filter-group">
+                <label>Valoració mínima</label>
+                <select id="filterRating">
+                    <option value="">Totes</option>
+                    <option value="4.5">4.5+ estrelles</option>
+                    <option value="4.0">4.0+ estrelles</option>
+                    <option value="3.5">3.5+ estrelles</option>
+                    <option value="3.0">3.0+ estrelles</option>
+                </select>
+            </div>
+        </div>
+        <div class="filter-options">
+            <div class="checkbox-group">
+                <input type="checkbox" id="filterAudio">
+                <label for="filterAudio">Àudio</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="filterBook">
+                <label for="filterBook">Llibre</label>
+            </div>
+            <button class="apply-filters-btn" onclick="applyFilters()">APLICAR</button>
+        </div>
+    </section>
+
+    <!-- Main -->
+    <main class="main-content">
+        <!-- Continuar llegint -->
+        <section id="continueReadingSection" style="display: none;">
+            <h2 class="section-title">CONTINUA LA LECTURA</h2>
+            <div class="books-grid" id="continueReadingGrid"></div>
+        </section>
+
+        <!-- Recomanacinos -->
+        <section id="recommendedSection">
+            <h2 class="section-title">RECOMANACIONS ❤️</h2>
+            <div class="books-grid" id="recommendationsGrid"></div>
+        </section>
+
+        <!-- Destacats/populars -->
+        <section id="featuredSection">
+            <h2 class="section-title">DESTACATS ⭐</h2>
+            <div class="books-grid" id="featuredGrid"></div>
+        </section>
+
+        <!-- Tots? -->
+        <section id="allBooksSection">
+            <h2 class="section-title">TOTS ELS LLIBRES</h2>
+            <div class="books-grid" id="allBooksGrid"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

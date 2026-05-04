@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOC Books - Lectura</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="reading-container" id="readingContainer">
+        <div class="reading-header">
+            <div>
+                <strong id="bookTitleHeader">Títol del Llibre</strong>
+            </div>
+            <div class="reading-controls">
+                <button class="icon-btn" onclick="toggleBookmark()" id="bookmarkBtn">🔖 Marcar pàgina</button>
+                <button class="icon-btn" onclick="toggleComments()">💬 Comentaris</button>
+                <button class="icon-btn" onclick="toggleSettings()">⚙️ Configuració</button>
+                <button class="icon-btn" onclick="showPauseModal()">⏸️ Pausar</button>
+            </div>
+        </div>
+
+        <!-- Reading Content -->
+        <div class="reading-content" id="readingContent">
+            <div class="pages-container" id="pagesContainer">
+                <div class="page" id="page1">
+                    <h2>Capítol 1</h2>
+                    <p>Lorem Ipsum</p>
+                    <div class="page-number">Pàgina 1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Footer -->
+        <div class="reading-footer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                <div class="bookmarks-container" id="bookmarksContainer"></div>
+            </div>
+            <div class="page-info" id="pageInfo">Pàgina 1 de 50</div>
+        </div>
+
+        <!-- Highlight Toolbar -->
+        <div class="highlight-toolbar" id="highlightToolbar">
+            <button class="color-btn yellow" onclick="highlightText('yellow')" title="Groc"></button>
+            <button class="color-btn dark-green" onclick="highlightText('dark-green')" title="Verd fosc"></button>
+            <button class="color-btn light-green" onclick="highlightText('light-green')" title="Verd clar"></button>
+            <button class="color-btn cyan" onclick="highlightText('cyan')" title="Cian"></button>
+            <button class="color-btn electric-blue" onclick="highlightText('electric-blue')"
+                title="Blau elèctric"></button>
+            <button class="color-btn light-gray" onclick="highlightText('light-gray')" title="Gris clar"></button>
+            <button class="toolbar-btn" onclick="addComment()">💬 Comentari</button>
+            <button class="toolbar-btn" onclick="removeHighlight()">❌ Eliminar</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configuració de lectura</h2>
+                <button class="close-modal" onclick="toggleSettings()">x</button>
+            </div>
+
+            <div class="modal-section">
+                <h3>Aparença</h3>
+                <div class="setting-item">
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="nightModeToggle" onchange="toggleNightMode()">
+                            <span class="slider"></span>
+                        </label>
+                        <label for="nightModeToggle">Mode nit</label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Mida de la font</label>
+                    <select id="fontSizeSelect" onchange="changeFontSize()">
+                        <option value="14">Petita</option>
+                        <option value="16" selected>Normal</option>
+                        <option value="18">Gran</option>
+                        <option value="20">Molt gran</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="twoColumnToggle" onchange="toggleTwoColumn()">
+                            <span class="slider"></span>
+                        </label>
+                        <label for="twoColumnToggle">Dues columnes</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Objectius de lectura</h3>
+                <div class="setting-item">
+                    <label>Pàgines per dia</label>
+                    <input type="number" id="pagesPerDay" min="0" value="0">
+                </div>
+                <div class="setting-item">
+                    <label>Minuts per dia</label>
+                    <input type="number" id="minutesPerDay" min="0" value="0">
+                </div>
+                <div class="setting-item">
+                    <label>Acabar abans de</label>
+                    <input type="date" id="finishByDate">
+                </div>
+                <div class="setting-item">
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="dailyStreakToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <label for="dailyStreakToggle">Activar ratxa diària (7 dies seguits)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Progrés actual</h3>
+                <div class="objectives-list" id="objectivesList">
+                    <div class="objective-item">
+                        <span>Pàgines llegides avui: <strong id="todayPages">0</strong></span>
+                    </div>
+                    <div class="objective-item">
+                        <span>Temps de lectura avui: <strong id="todayTime">0 min</strong></span>
+                    </div>
+                    <div class="objective-item">
+                        <span>Ratxa actual: <strong id="currentStreak">0 dies</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="saveSettings()">Desar configuració</button>
+        </div>
+    </div>
+
+    <!-- Comments Modal -->
+    <div class="modal" id="commentsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Els meus comentaris</h2>
+                <button class="close-modal" onclick="toggleComments()">×</button>
+            </div>
+            <div id="commentsListContainer">
+                <p style="text-align: center; color: #666; padding: 20px;">Encara no tens comentaris. Selecciona text i
+                    afegeix un comentari!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div class="modal" id="pauseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Pausar lectura</h2>
+            </div>
+            <div style="margin: 20px 0;">
+                <p style="font-size: 16px; margin-bottom: 20px;">Vols sortir del llibre o continuar llegint?</p>
+                <div id="pauseStats"
+                    style="background-color: var(--light-gray); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <p><strong>Temps de lectura en aquesta sessió:</strong> <span id="sessionTime">0 min</span></p>
+                    <p><strong>Pàgines llegides:</strong> <span id="sessionPages">0</span></p>
+                    <p><strong>Progrés del llibre:</strong> <span id="bookProgress">0%</span></p>
+                </div>
+            </div>
+            <div class="pause-modal-actions">
+                <button class="btn btn-primary" onclick="closePauseModal()">Continuar llegint</button>
+                <button class="btn" onclick="exitBook()">Sortir del llibre</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="reading.js"></script>
+</body>
+
+</html>
