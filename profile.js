@@ -73,10 +73,10 @@ function loadBookshelves() {
     const completedBooks = books.filter(b => bookStatuses[b.id] === 'completed');
     const pausedBooks = books.filter(b => bookStatuses[b.id] === 'paused');
 
-    displayShelfBooks(readingBooks, 'readingShelf');
-    displayShelfBooks(wantToReadBooks, 'wantToReadShelf');
-    displayShelfBooks(completedBooks, 'completedShelf');
-    displayShelfBooks(pausedBooks, 'pausedShelf');
+    displayShelfBooks(readingBooks, 'readingShelf', true); // true = isReadingShelf
+    displayShelfBooks(wantToReadBooks, 'wantToReadShelf', false);
+    displayShelfBooks(completedBooks, 'completedShelf', false);
+    displayShelfBooks(pausedBooks, 'pausedShelf', false);
 
     document.getElementById('readingCount').textContent = `${readingBooks.length} llibres`;
     document.getElementById('wantToReadCount').textContent = `${wantToReadBooks.length} llibres`;
@@ -84,7 +84,7 @@ function loadBookshelves() {
     document.getElementById('pausedCount').textContent = `${pausedBooks.length} llibres`;
 }
 
-function displayShelfBooks(books, shelfId) {
+function displayShelfBooks(books, shelfId, isReadingShelf = false) {
     const shelf = document.getElementById(shelfId);
     shelf.innerHTML = '';
 
@@ -99,16 +99,21 @@ function displayShelfBooks(books, shelfId) {
 
         const stars = '★'.repeat(Math.floor(book.rating)) + '☆'.repeat(5 - Math.floor(book.rating));
 
+        // Si és la secció de lectura, redirigeix a reading.html; si no, a book-details.html
+        const primaryAction = isReadingShelf
+            ? `<button class="btn-small btn-primary-action" onclick="continueReading(${book.id})">Continuar llegint</button>`
+            : `<button class="btn-small" onclick="viewBookDetails(${book.id})">Veure</button>`;
+
         bookCard.innerHTML = `
-            <div class="book-cover"></div>
-            <div class="book-title">${book.title}</div>
+            <div class="book-cover" onclick="${isReadingShelf ? `continueReading(${book.id})` : `viewBookDetails(${book.id})`}" style="cursor: pointer;"></div>
+            <div class="book-title" onclick="${isReadingShelf ? `continueReading(${book.id})` : `viewBookDetails(${book.id})`}" style="cursor: pointer;">${book.title}</div>
             <div class="book-author">${book.author}</div>
             <div class="book-rating">
                 <span class="stars">${stars}</span>
                 <span class="rating-value">${book.rating}/5⭐</span>
             </div>
             <div class="book-actions">
-                <button class="btn-small" onclick="viewBookDetails(${book.id})">Veure</button>
+                ${primaryAction}
                 <button class="btn-small" onclick="manageBook(${book.id})">Organitza</button>
             </div>
         `;
@@ -119,6 +124,10 @@ function displayShelfBooks(books, shelfId) {
 
 function viewBookDetails(bookId) {
     window.location.href = `book-details.html?id=${bookId}`;
+}
+
+function continueReading(bookId) {
+    window.location.href = `reading.html?id=${bookId}`;
 }
 
 // gestio collecions
@@ -475,11 +484,36 @@ function loadActivity() {
         const book = books.find(b => b.id === progress.bookId);
         if (!book) return;
 
+        const percentage = Math.round((progress.currentPage / progress.totalPages) * 100);
+
         const item = document.createElement('div');
         item.className = 'recent-book-item';
+        item.style.cursor = 'pointer';
+        item.style.transition = 'background-color 0.2s';
+
         item.innerHTML = `
-            <p><strong>${book.title}</strong> - Pàgina ${progress.currentPage} de ${progress.totalPages}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1;" onclick="continueReading(${book.id})">
+                    <p><strong>${book.title}</strong> <span style="color: #666; font-size: 12px;">- ${book.author}</span></p>
+                    <p style="font-size: 12px; color: #666;">Pàgina ${progress.currentPage} de ${progress.totalPages} (${percentage}%)</p>
+                    <div style="background-color: #e0e0e0; height: 6px; border-radius: 3px; margin-top: 5px;">
+                        <div style="background-color: var(--primary-cyan); height: 100%; width: ${percentage}%; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                <button class="btn-small btn-primary-action" onclick="continueReading(${book.id})" style="margin-left: 15px;">
+                    Continuar
+                </button>
+            </div>
         `;
+
+        // Afegir hover effect
+        item.addEventListener('mouseenter', () => {
+            item.style.backgroundColor = 'var(--light-gray)';
+        });
+        item.addEventListener('mouseleave', () => {
+            item.style.backgroundColor = 'transparent';
+        });
+
         recentBooksDiv.appendChild(item);
     });
 

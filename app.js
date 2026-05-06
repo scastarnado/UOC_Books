@@ -63,7 +63,7 @@ function initializeBooksData() {
             const format = formats[Math.floor(Math.random() * formats.length)];
             const pages = Math.floor(Math.random() * 500) + 100; // pàgines entre 100 i 600
             const year = Math.floor(Math.random() * 77) + 1950; // anys de release del llibre des de 1950 fins 2026
-            const rating = (Math.random() * 2 + 1).toFixed(1); // posar minim 1 estrella
+            const rating = (Math.random() * 4 + 1).toFixed(1); // posar minim 1 estrella
             const readTimeHours = Math.ceil(pages / 50); // posar 50 minuts com a màxim per llegir qualsevol llibre
 
             // aquest serà el model de Llibre
@@ -330,24 +330,26 @@ function logout() {
 
 window.addEventListener('load', () => {
     const currentUser = localStorage.getItem('currentUser');
-    if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-    }
 
     const userActions = document.querySelector('.user-actions');
-    const user = JSON.parse(currentUser);
-    userActions.innerHTML = `
-        <span style="margin-right: 15px; color: var(--primary-blue);">Hola, ${user.name}</span>
-        <button class="btn" onclick="window.location.href='profile.html'">El Meu Perfil</button>
-        <button class="btn" onclick="logout()">Tancar sessió</button>
-    `;
+    if (currentUser) {
+        const user = JSON.parse(currentUser);
+        userActions.innerHTML = `
+            <span style="margin-right: 15px; color: var(--primary-blue);">Hola, ${user.name}</span>
+            <button class="btn" onclick="logout()">Tancar sessió</button>
+        `;
+        loadContinueReading();
+    } else {
+        userActions.innerHTML = `
+            <button class="btn" onclick="window.location.href='login.html'">Registra't</button>
+            <button class="btn" onclick="window.location.href='login.html'">Inicia sessió</button>
+        `;
+    }
 
     const books = initializeBooksData();
     initializeYearFilters();
 
     displayAllBooks(books);
-    loadContinueReading();
 
     document.getElementById('searchInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {

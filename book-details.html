@@ -13,16 +13,16 @@
         <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">LOGO</div>
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Buscar per títol">
-            <button class="search-btn">🔍</button>
+            <button class="search-btn">🔍︎</button>
         </div>
-        <div class="user-actions">
-            <button class="btn">Registra't</button>
-            <button class="btn" onclick="logout()">Inicia sessió</button>
+        <div class="user-actions" id="userActions">
+            <button class="btn" onclick="window.location.href='login.html'">Registra't</button>
+            <button class="btn" onclick="window.location.href='login.html'">Inicia sessió</button>
         </div>
     </header>
 
     <div class="details-container">
-        <button class="back-btn" onclick="window.history.back()">Anar a la pàgina d'inici</button>
+        <button class="back-btn" onclick="window.history.back()">← Tornar enrere</button>
 
         <div class="book-details">
             <div>
@@ -65,7 +65,11 @@
         <div class="reviews-section">
             <h2>Deixa una ressenya</h2>
 
-            <div class="review-form">
+            <div class="review-form" id="reviewForm">
+                <div id="reviewRestrictionMessage" class="warning-message">
+                    <b>Restricció:</b> Has d'haver llegit el
+                    llibre abans de poder publicar una ressenya.
+                </div>
                 <h3>Valora aquest llibre</h3>
                 <div class="rating-input" id="ratingInput">
                     <span class="star" data-rating="1" onclick="setRating(1)">★</span>
@@ -75,7 +79,7 @@
                     <span class="star" data-rating="5" onclick="setRating(5)">★</span>
                 </div>
                 <textarea class="review-textarea" id="reviewText" placeholder="Escriu la teva opinió..."></textarea>
-                <button class="btn-primary" onclick="submitReview()">Publicar ressenya</button>
+                <button class="btn-primary" id="submitReviewBtn" onclick="submitReview()">Publicar ressenya</button>
             </div>
 
             <div id="reviewsList"></div>
@@ -85,6 +89,7 @@
     <script>
         let currentBook = null;
         let userRating = 0;
+        let hasCompletedBook = false;
 
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -107,10 +112,91 @@
 
                 if (currentBook) {
                     displayBookDetails(currentBook);
+                    checkBookCompletionStatus(currentUser);
                     loadReviews();
                 }
             }
         });
+
+        function checkBookCompletionStatus(currentUser) {
+            if (!currentUser.id) {
+                hasCompletedBook = false;
+                disableReviewForm();
+                return;
+            }
+
+            // Comprovar si l'usuari ha completat el llibre
+            const bookStatuses = JSON.parse(localStorage.getItem(`bookStatuses_${currentUser.id}`) || '{}');
+            hasCompletedBook = bookStatuses[currentBook.id] === 'completed';
+
+            if (!hasCompletedBook) {
+                disableReviewForm();
+            } else {
+                enableReviewForm();
+            }
+        }
+
+        function disableReviewForm() {
+            const reviewForm = document.getElementById('reviewForm');
+            const ratingInput = document.getElementById('ratingInput');
+            const reviewText = document.getElementById('reviewText');
+            const submitBtn = document.getElementById('submitReviewBtn');
+            const restrictionMessage = document.getElementById('reviewRestrictionMessage');
+
+            // Mostrar missatge de restricció
+            restrictionMessage.style.display = 'block';
+
+            // Deshabilitar estrelles
+            const stars = ratingInput.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.style.opacity = '0.4';
+                star.style.cursor = 'not-allowed';
+                star.onclick = null;
+            });
+
+            // Deshabilitar textarea
+            reviewText.disabled = true;
+            reviewText.placeholder = 'Has de completar la lectura del llibre per escriure una ressenya';
+            reviewText.style.opacity = '0.5';
+            reviewText.style.cursor = 'not-allowed';
+
+            // Deshabilitar botó
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+            submitBtn.onclick = null;
+        }
+
+        function enableReviewForm() {
+            const reviewForm = document.getElementById('reviewForm');
+            const ratingInput = document.getElementById('ratingInput');
+            const reviewText = document.getElementById('reviewText');
+            const submitBtn = document.getElementById('submitReviewBtn');
+            const restrictionMessage = document.getElementById('reviewRestrictionMessage');
+
+            // Amagar missatge de restricció
+            restrictionMessage.style.display = 'none';
+
+            // Habilitar estrelles
+            const stars = ratingInput.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.style.opacity = '1';
+                star.style.cursor = 'pointer';
+                star.onclick = () => setRating(index + 1);
+            });
+
+            // Habilitar textarea
+            reviewText.disabled = false;
+            reviewText.placeholder = 'Escriu la teva opinió...';
+            reviewText.style.opacity = '1';
+            reviewText.style.cursor = 'text';
+
+            // Habilitar botó
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            submitBtn.onclick = submitReview;
+        }
 
         function displayBookDetails(book) {
             document.getElementById('bookTitle').textContent = book.title;
@@ -132,6 +218,12 @@
         }
 
         function setRating(rating) {
+            // No permetre valorar si no ha completat el llibre
+            if (!hasCompletedBook) {
+                alert('Has d\'haver llegit el llibre abans de poder valorar-lo');
+                return;
+            }
+
             userRating = rating;
             const stars = document.querySelectorAll('#ratingInput .star');
             stars.forEach((star, index) => {
@@ -144,6 +236,12 @@
         }
 
         function submitReview() {
+            // Comprovar si ha completat el llibre
+            if (!hasCompletedBook) {
+                alert('Has d\'haver llegit el llibre abans de poder publicar una ressenya');
+                return;
+            }
+
             if (userRating === 0) {
                 alert('Si us plau, selecciona una valoració');
                 return;
@@ -224,6 +322,13 @@
         }
 
         function startReading() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser.id) {
+                alert('Has d\'iniciar sessió per llegir llibres');
+                window.location.href = 'login.html';
+                return;
+            }
+
             if (currentBook) {
                 window.location.href = `reading.html?id=${currentBook.id}`;
             }
