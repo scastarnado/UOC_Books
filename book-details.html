@@ -210,6 +210,12 @@
             document.getElementById('bookFormat').textContent = book.format;
             document.getElementById('bookDescription').textContent = book.description;
 
+            // Set book cover image
+            const coverElement = document.getElementById('bookCover');
+            if (book.coverImage) {
+                coverElement.innerHTML = `<img src="${book.coverImage}" alt="${book.title}">`;
+            }
+
             const stars = '★'.repeat(Math.floor(book.rating)) + '☆'.repeat(5 - Math.floor(book.rating));
             document.getElementById('bookRating').innerHTML = `
                 <div class="stars">${stars}</div>

@@ -48,6 +48,14 @@ const bookTitles = [
     'El temps entre costures', 'La templanza', 'Sira'
 ];
 
+// Book cover images
+const bookCovers = [
+    'media/gnome.png',
+    'media/red_woods.png',
+    'media/sand.png',
+    'media/ice.png',
+];
+
 const BOOKS_TO_GENERATE = 100;
 
 function initializeBooksData() {
@@ -65,6 +73,7 @@ function initializeBooksData() {
             const year = Math.floor(Math.random() * 77) + 1950; // anys de release del llibre des de 1950 fins 2026
             const rating = (Math.random() * 4 + 1).toFixed(1); // posar minim 1 estrella
             const readTimeHours = Math.ceil(pages / 50); // posar 50 minuts com a màxim per llegir qualsevol llibre
+            const coverImage = bookCovers[i % bookCovers.length]; // ciclar a través de les imatges disponibles
 
             // aquest serà el model de Llibre
             books.push({
@@ -80,6 +89,7 @@ function initializeBooksData() {
                 readTime: `${readTimeHours} hores (aproximadament)`,
                 readTimeValue: readTimeHours,
                 edition: `${Math.floor(Math.random() * 5) + 1}a`, // edicio entre 1a i 5a
+                coverImage: coverImage,
                 description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel mollis dolor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Maecenas iaculis molestie velit, vitae volutpat augue condimentum in. Ut in sapien sed leo lobortis tempor. Duis quis tortor scelerisque, vulputate orci at, posuere lacus. Curabitur dapibus, turpis efficitur vulputate malesuada, justo neque maximus lacus, sed rhoncus urna arcu nec est. Quisque interdum elit eu pretium auctor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Maecenas sed imperdiet est. Vestibulum nec euismod massa. Duis vestibulum massa sed lacus feugiat faucibus. Aliquam vitae orci lacus.`,
                 featured: Math.random() > 0.8, // nombres aleatoris per marcar alguns llibres com a destacats
                 recommended: Math.random() > 0.7 // nombres aleatoris per marcar alguns llibres com a recomanats
@@ -129,7 +139,9 @@ function displayBooks(books, gridId) {
         }
 
         bookCard.innerHTML = `
-            <div class="book-cover"></div>
+            <div class="book-cover">
+                <img src="${book.coverImage}" alt="${book.title}" onerror="this.style.display='none'">
+            </div>
             <div class="book-title" title="${book.title}">${tempBookTitle}</div>
             <div class="book-author">${book.author}</div>
             <div class="book-rating">

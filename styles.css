@@ -248,12 +248,13 @@ body {
     justify-content: center;
     margin-bottom: 10px;
     position: relative;
+    overflow: hidden;
 }
 
-.book-cover::before {
-    content: 'X';
-    font-size: 60px;
-    color: var(--medium-gray);
+.book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .book-title {
@@ -323,12 +324,13 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
+    overflow: hidden;
 }
 
-.book-cover-large::before {
-    content: 'X';
-    font-size: 120px;
-    color: var(--medium-gray);
+.book-cover-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .book-info h1 {
